@@ -51,11 +51,14 @@ int main() {
       // get the index of the last character of key
       key_end = find_next_space(payload, 0);
 
-      key = (char *)extract_word(payload, 1, key_end);
+      if (key_end != 0) {
 
-      value = retrieve_from_map(key);
+        key = (char *)extract_word(payload, 1, key_end);
 
-      update_response(response, BUFFER_SIZE, value);
+        value = retrieve_from_map(key);
+
+        update_response(response, BUFFER_SIZE, value);
+      }
 
       // Free memory allocated for the key
       free(key);
@@ -68,6 +71,7 @@ int main() {
 
     send_to_client(client_socket, response);
     kill_connection(client_socket);
+    printf("Handled request\n");
   }
 
   kill_connection(server_socket);
@@ -114,6 +118,10 @@ int update_response(char *response, int n, char *update) {
     *(response + i) = 0;
   }
 
+  if (update == NULL) {
+    return 0;
+  }
+
   // distance from first null byte
   // to 0 is the length of the string
   int update_size = find_next_space(update, 0);
@@ -123,5 +131,7 @@ int update_response(char *response, int n, char *update) {
   for (int i = 0; i < update_size; i++) {
     *(response + i) = *(update + i);
   }
+
+  return update_size;
 
 }
